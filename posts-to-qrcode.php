@@ -25,10 +25,25 @@ function pqrc_load_textdomain(){
 
 function pqrc_display_qr_code($content){
 	$current_post_id = get_the_Id();
-	$current_post_url = urlencode(get_the_permalink($current_post_id));
 	$current_post_title = get_the_title();
-	$image_src = sprintf('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=%s',$current_post_url);
-	$content .= sprintf("<img src='%s' alt='%s' />", $image_src, $current_post_title);
+	$current_post_url = urlencode(get_the_permalink($current_post_id));
+	$current_post_type = get_post_type($current_post_id);
+
+	//Post Type Check
+	$excluded_post_types = apply_filters('pqrc_excluded_post_types',array());
+	var_dump($current_post_type);
+	if(in_array($current_post_type, $excluded_post_types)){
+		return $content;
+	}
+	
+	//Image Dimention
+	$dimention = apply_filters( 'pqrc_qrcode_dimantion', '150x150' );	
+	
+	//Image Attribuites
+	$image_attribuites = apply_filters( 'pqrc_qrcode_attribuites', null );
+
+	$image_src = sprintf('https://api.qrserver.com/v1/create-qr-code/?size=%s&data=%s', $dimention, $current_post_url);
+	$content .= sprintf("<img %s src='%s' alt='%s' />", $image_attribuites, $image_src, $current_post_title);
 	return $content;
 
 } 
